@@ -1,0 +1,34 @@
+🔧 Server setup started
+✅ /auth route registered
+✅ MongoDB connected: localhost
+🚀 Server running on port 5000
+📨 /auth/register route hit
+❌ Registration error: User.findOne is not a function
+📨 /auth/register route hit
+❌ Registration error: User.findOne is not a function
+📨 /auth/register route hit
+📨 /auth/register route hit
+📨 /auth/register route hit
+📨 /auth/register route hit
+📨 /auth/register route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+🔐 /auth/login route hit
+📨 /auth/register route hit
+🔐 /auth/login route hit
