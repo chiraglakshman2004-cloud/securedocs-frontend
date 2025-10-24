@@ -1,110 +1,77 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+const Document = require("../models/Document");
+const ActivityLog = require("../models/ActivityLog");
 const verifyToken = require("../middleware/authMiddleware");
-const File = require("../models/File");
 
 const router = express.Router();
 
-// Configure Multer storage
+// Ensure uploads folder exists
+const uploadDir = path.join(__dirname, "..", "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+// Configure multer for local storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Make sure this folder exists
-  },
+  destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
     const uniqueName = `${Date.now()}-${file.originalname}`;
     cb(null, uniqueName);
   },
 });
 
-const upload = multer({ storage });
+// Limit: 20MB and simple file filter as a safety
+const upload = multer({
+  storage,
+  limits: { fileSize: 20 * 1024 * 1024 },
+});
 
-// 🔐 Upload route (protected)
-router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
-  }
+// router previously had: const upload = multer({ storage });
 
+router.post("/", verifyToken, upload.single("file"), async (req, res) => {
   try {
-    const fileDoc = new File({
+    console.log("📤 Upload request received");
+    console.log("File:", req.file);
+    console.log("User:", req.user);
+    
+    if (!req.file) {
+      console.log("❌ No file in request");
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const allowed = ["events", "circulars", "documents", "rules", "regulations"];
+    let { category, title, description } = req.body;
+    if (!allowed.includes(category)) category = "documents";
+
+    const doc = new Document({
       filename: req.file.filename,
-      path: req.file.path,
-      uploadedBy: req.user.userId,
-      uploadedAt: new Date(),
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      uploader: req.user.username,
+      category,
+      title: title || undefined,
+      description: description || undefined,
     });
+    
+    console.log("💾 Saving document to database:", doc);
+    await doc.save();
+    console.log("✅ Document saved successfully");
 
-    await fileDoc.save();
-
-    res.status(200).json({
-      message: "File uploaded and saved",
-      file: {
-        id: fileDoc._id,
-        filename: fileDoc.filename,
-        path: fileDoc.path,
-        uploadedAt: fileDoc.uploadedAt,
-      },
+    await ActivityLog.create({
+      action: `Uploaded ${req.file.originalname} (${category})`,
+      user: req.user.username,
     });
+    console.log("✅ Activity log created");
+
+    res
+      .status(200)
+      .json({ message: `${req.file.originalname} uploaded successfully!`, category });
   } catch (err) {
-    res.status(500).json({ error: "Failed to save file metadata" });
-  }
-});
-
-// 🔍 List files uploaded by current user
-router.get("/list", verifyToken, async (req, res) => {
-  try {
-    const files = await File.find({ uploadedBy: req.user.userId }).sort({
-      uploadedAt: -1,
-    });
-
-    res.status(200).json({
-      message: "Files retrieved",
-      files: files.map((file) => ({
-        id: file._id,
-        filename: file.filename,
-        path: file.path,
-        uploadedAt: file.uploadedAt,
-      })),
-    });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to retrieve files" });
-  }
-});
-
-const fs = require("fs");
-
-// 📥 Download a file by ID
-router.get("/download/:id", verifyToken, async (req, res) => {
-  try {
-    const file = await File.findById(req.params.id);
-
-    if (!file) return res.status(404).json({ error: "File not found" });
-    if (file.uploadedBy.toString() !== req.user.userId)
-      return res.status(403).json({ error: "Access denied" });
-
-    const filePath = path.join(__dirname, "..", file.path);
-    res.download(filePath, file.filename);
-  } catch (err) {
-    res.status(500).json({ error: "Download failed" });
-  }
-});
-// 🗑️ Delete a file by ID
-router.delete("/delete/:id", verifyToken, async (req, res) => {
-  try {
-    const file = await File.findById(req.params.id);
-
-    if (!file) return res.status(404).json({ error: "File not found" });
-    if (file.uploadedBy.toString() !== req.user.userId)
-      return res.status(403).json({ error: "Access denied" });
-
-    // Delete file from disk
-    fs.unlinkSync(path.join(__dirname, "..", file.path));
-
-    // Delete metadata from DB
-    await File.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({ message: "File deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: "Deletion failed" });
+    console.error("❌ Upload error:", err);
+    res.status(500).json({ message: "Upload failed" });
   }
 });
 

@@ -4,6 +4,11 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const loginRoutes = require("./routes/login");
+const activityRoutes = require("./routes/activity");
+const fileRoutes = require("./routes/fileRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const usersRoutes = require("./routes/users");
 
 dotenv.config(); // Load .env variables
 
@@ -16,14 +21,16 @@ app.get("/ping", (req, res) => res.send("Server is alive and responding"));
 
 // Routes
 app.use("/auth", authRoutes); // Registration, login, profile, admin
-app.use("/files", uploadRoutes); // File upload route
+app.use("/login", loginRoutes);
+app.use("/upload", uploadRoutes); // File upload route
+app.use("/files", fileRoutes); // File management routes
+app.use("/activity", activityRoutes);
+app.use("/admin", adminRoutes);
+app.use("/users", usersRoutes);
 app.use("/uploads", express.static("uploads")); // Serve uploaded files
-app.use("/files", uploadRoutes);
-app.use("/uploads", express.static("uploads")); // to serve files directly
 
 // MongoDB connection
-const mongoUri =
-  process.env.MONGO_URI || "mongodb://localhost:27017/securechat";
+const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/securedocs";
 const port = process.env.PORT || 5000;
 
 mongoose

@@ -4,24 +4,13 @@ const verifyToken = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Get all users (admin only)
-router.get("/users", verifyToken, async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   if (req.user.role !== "admin") {
     return res.status(403).json({ message: "Access denied" });
   }
 
   const users = await User.find({}, "-password");
   res.json(users);
-});
-
-// Delete a user
-router.delete("/users/:id", verifyToken, async (req, res) => {
-  if (req.user.role !== "admin") {
-    return res.status(403).json({ message: "Access denied" });
-  }
-
-  await User.findByIdAndDelete(req.params.id);
-  res.json({ message: "User deleted" });
 });
 
 module.exports = router;

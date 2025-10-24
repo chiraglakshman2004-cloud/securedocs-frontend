@@ -1,21 +1,37 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, Form, Button, Row, Col, Card } from "react-bootstrap";
+import { Container, Form, Button, Row, Col, Card, Alert } from "react-bootstrap";
+import apiService from "../services/api";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    // ✅ Confirm this logs to console
-    console.log("Login triggered");
-
-    // ✅ Set token
-    localStorage.setItem("token", "demo-token");
-
-    // ✅ Redirect
-    navigate("/dashboard");
+    try {
+      const data = await apiService.login(username, password);
+      
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role);
+        localStorage.setItem("username", username);
+        navigate("/dashboard");
+      } else {
+        setError(data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Server error during login");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,12 +41,17 @@ const Login = () => {
           <Card>
             <Card.Body>
               <h3 className="mb-4 text-center">SecureDocs Login</h3>
+              
+              {error && <Alert variant="danger">{error}</Alert>}
+              
               <Form onSubmit={handleLogin}>
-                <Form.Group className="mb-3" controlId="formEmail">
-                  <Form.Label>Email address</Form.Label>
+                <Form.Group className="mb-3" controlId="formUsername">
+                  <Form.Label>Username</Form.Label>
                   <Form.Control
-                    type="email"
-                    placeholder="Enter email"
+                    type="text"
+                    placeholder="Enter username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     required
                   />
                 </Form.Group>
@@ -40,12 +61,19 @@ const Login = () => {
                   <Form.Control
                     type="password"
                     placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </Form.Group>
 
-                <Button variant="primary" type="submit" className="w-100">
-                  Login
+                <Button 
+                  variant="primary" 
+                  type="submit" 
+                  className="w-100"
+                  disabled={loading}
+                >
+                  {loading ? "Logging in..." : "Login"}
                 </Button>
               </Form>
             </Card.Body>
@@ -57,56 +85,3 @@ const Login = () => {
 };
 
 export default Login;
-
-// import React from "react";
-// import { useNavigate } from "react-router-dom";
-// import { Container, Form, Button, Row, Col, Card } from "react-bootstrap";
-
-// const Login = () => {
-//   const navigate = useNavigate();
-
-//   const handleLogin = (e) => {
-//     e.preventDefault();
-//     localStorage.setItem("token", "demo-token");
-//     navigate("/dashboard");
-//   };
-
-//   return (
-//     <Container className="mt-5">
-//       <Row className="justify-content-md-center">
-//         <Col md={6}>
-//           <Card>
-//             <Card.Body>
-//               <h3 className="mb-4 text-center">SecureDocs Login</h3>
-//               <Form onSubmit={handleLogin}>
-//                 <Form.Group className="mb-3" controlId="formEmail">
-//                   <Form.Label>Email address</Form.Label>
-//                   <Form.Control
-//                     type="email"
-//                     placeholder="Enter email"
-//                     required
-//                   />
-//                 </Form.Group>
-
-//                 <Form.Group className="mb-3" controlId="formPassword">
-//                   <Form.Label>Password</Form.Label>
-//                   <Form.Control
-//                     type="password"
-//                     placeholder="Password"
-//                     required
-//                   />
-//                 </Form.Group>
-
-//                 <Button variant="primary" type="submit" className="w-100">
-//                   Login
-//                 </Button>
-//               </Form>
-//             </Card.Body>
-//           </Card>
-//         </Col>
-//       </Row>
-//     </Container>
-//   );
-// };
-
-// export default Login;

@@ -26,10 +26,13 @@ const AppNavbar = () => {
               <Nav.Link as={Link} to="/upload">
                 Upload
               </Nav.Link>
-              <Nav.Link as={Link} to="/activity">
+              <Nav.Link as={Link} to="/files">
+                Files
+              </Nav.Link>
+              <Nav.Link as={Link} to="/activity-log">
                 Activity Log
               </Nav.Link>
-              <Nav.Link as={Link} to="/admin">
+              <Nav.Link as={Link} to="/admin-panel">
                 Admin Panel
               </Nav.Link>
             </Nav>

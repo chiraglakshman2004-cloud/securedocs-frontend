@@ -32,3 +32,4 @@
 🔐 /auth/login route hit
 📨 /auth/register route hit
 🔐 /auth/login route hit
+📨 /auth/register route hit

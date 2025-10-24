@@ -1,24 +1,20 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import ProtectedRoute from "../components/ProtectedRoute";
+import UploadedFiles from "../pages/UploadedFiles";
+import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import Upload from "../pages/Upload";
-import AdminPanel from "../pages/AdminPanel";
 import ActivityLog from "../pages/ActivityLog";
+import AdminPanel from "../pages/AdminPanel";
 
-const AppRoutes = () => {
-  const token = localStorage.getItem("token");
-
-  const ProtectedRoute = ({ children }) => {
-    return token ? children : <Navigate to="/login" />;
-  };
-
+function AppRoutes() {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={token ? <Navigate to="/dashboard" /> : <Login />}
-      />
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+
       <Route
         path="/dashboard"
         element={
@@ -27,6 +23,7 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/upload"
         element={
@@ -35,25 +32,35 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+
       <Route
-        path="/admin"
-        element={
-          <ProtectedRoute>
-            <AdminPanel />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/activity"
+        path="/activity-log"
         element={
           <ProtectedRoute>
             <ActivityLog />
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to="/" />} />
+
+      <Route
+        path="/files"
+        element={
+          <ProtectedRoute>
+            <UploadedFiles />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin-panel"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminPanel />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
-};
+}
 
 export default AppRoutes;

@@ -3,8 +3,8 @@ const fs = require("fs");
 
 const connectDB = async () => {
   try {
-    // ✅ No need for deprecated options now
-    const conn = await mongoose.connect("mongodb://localhost:27017/securedocs");
+    const uri = process.env.MONGO_URI || "mongodb://localhost:27017/securedocs";
+    const conn = await mongoose.connect(uri);
 
     fs.appendFileSync(
       "log.txt",
