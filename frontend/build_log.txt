@@ -1,0 +1,28 @@
+﻿Creating an optimized production build...
+Compiled with warnings.
+
+[eslint] 
+src\services\api.js
+  Line 126:1:  Assign instance to a variable before exporting as module default  import/no-anonymous-default-export
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+File sizes after gzip:
+
+  184.26 kB  build\static\js\main.4c854420.js
+  48.08 kB   build\static\css\main.1ccb9a58.css
+
+The project was built assuming it is hosted at /.
+You can control this with the homepage field in your package.json.
+
+The build folder is ready to be deployed.
+You may serve it with a static server:
+
+  npm install -g serve
+  serve -s build
+
+Find out more about deployment here:
+
+  https://cra.link/deployment
+

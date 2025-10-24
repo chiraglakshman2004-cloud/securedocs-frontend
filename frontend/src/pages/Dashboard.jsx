@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import apiService from "../services/api";
+import "./Dashboard.css";
 
 const Dashboard = () => {
   const [files, setFiles] = useState([]);
@@ -18,9 +19,9 @@ const Dashboard = () => {
         setLoading(true);
         const [filesData, activitiesData] = await Promise.all([
           apiService.getFiles(),
-          apiService.getActivityLogs()
+          apiService.getActivityLogs(),
         ]);
-        
+
         setFiles(filesData);
         setActivities(activitiesData.slice(0, 5)); // Get last 5 activities
         setError("");
@@ -36,16 +37,16 @@ const Dashboard = () => {
   }, []);
 
   const totalUploads = files.length;
-  const recentUploads = files.slice(0, 3).map(file => ({
+  const recentUploads = files.slice(0, 3).map((file) => ({
     file: file.originalname,
-    time: new Date(file.createdAt).toLocaleString()
+    time: new Date(file.createdAt).toLocaleString(),
   }));
 
   const [events, setEvents] = useState([]);
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const ev = await apiService.getFiles({ category: 'events' });
+        const ev = await apiService.getFiles({ category: "events" });
         setEvents(Array.isArray(ev) ? ev.slice(0, 5) : []);
       } catch (e) {
         // ignore dashboard events errors to not block dashboard
@@ -57,10 +58,13 @@ const Dashboard = () => {
   return (
     <Container fluid className="mt-4 px-4">
       {/* Hero Header */}
-      <Row className="mb-4">
+      <Row className="mb-4 dashboard-hero align-items-center">
         <Col>
           <h2 className="fw-bold">Welcome back, {username}</h2>
-          <p className="text-muted">SecureDocs Dashboard - {role.charAt(0).toUpperCase() + role.slice(1)}</p>
+          <p className="text-muted">
+            SecureDocs Dashboard —{" "}
+            {role.charAt(0).toUpperCase() + role.slice(1)}
+          </p>
         </Col>
       </Row>
 
@@ -87,12 +91,14 @@ const Dashboard = () => {
       )}
 
       {/* Stat Cards */}
-      <Row className="mb-4 g-3">
-        <Col md={3}>
-          <Card className="shadow-sm border-0">
+      <Row className="mb-4 g-3 stats-row">
+        <Col md={3} xs={6}>
+          <Card className="shadow-sm border-0 stat-card">
             <Card.Body>
               <div className="d-flex align-items-center">
-                <i className="bi bi-file-earmark-text fs-2 text-primary me-3"></i>
+                <div className="stat-icon bg-primary">
+                  <i className="bi bi-file-earmark-text"></i>
+                </div>
                 <div>
                   <h5 className="mb-0">{totalUploads}</h5>
                   <small className="text-muted">Total Documents</small>
@@ -101,24 +107,30 @@ const Dashboard = () => {
             </Card.Body>
           </Card>
         </Col>
-        <Col md={3}>
-          <Card className="shadow-sm border-0">
+        <Col md={3} xs={6}>
+          <Card className="shadow-sm border-0 stat-card">
             <Card.Body>
               <div className="d-flex align-items-center">
-                <i className="bi bi-person-check fs-2 text-success me-3"></i>
+                <div className="stat-icon bg-success">
+                  <i className="bi bi-person-check"></i>
+                </div>
                 <div>
-                  <h5 className="mb-0">{role.charAt(0).toUpperCase() + role.slice(1)}</h5>
+                  <h5 className="mb-0">
+                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                  </h5>
                   <small className="text-muted">Role</small>
                 </div>
               </div>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={3}>
-          <Card className="shadow-sm border-0">
+        <Col md={3} xs={6}>
+          <Card className="shadow-sm border-0 stat-card">
             <Card.Body>
               <div className="d-flex align-items-center">
-                <i className="bi bi-shield-check fs-2 text-warning me-3"></i>
+                <div className="stat-icon bg-warning">
+                  <i className="bi bi-shield-check"></i>
+                </div>
                 <div>
                   <h5 className="mb-0">Secure</h5>
                   <small className="text-muted">System Status</small>
@@ -127,11 +139,13 @@ const Dashboard = () => {
             </Card.Body>
           </Card>
         </Col>
-        <Col md={3}>
-          <Card className="shadow-sm border-0">
+        <Col md={3} xs={6}>
+          <Card className="shadow-sm border-0 stat-card">
             <Card.Body>
               <div className="d-flex align-items-center">
-                <i className="bi bi-cloud-upload fs-2 text-info me-3"></i>
+                <div className="stat-icon bg-info">
+                  <i className="bi bi-cloud-upload"></i>
+                </div>
                 <div>
                   <h5 className="mb-0">{activities.length}</h5>
                   <small className="text-muted">Recent Activities</small>
@@ -145,21 +159,41 @@ const Dashboard = () => {
       {/* Quick Actions */}
       <Row className="mb-4">
         <Col>
-          <Card className="shadow-sm border-0">
+          <Card className="shadow-sm border-0 dashboard-card quick-actions-card">
             <Card.Body>
               <h5 className="mb-3">Quick Actions</h5>
-              <div className="d-flex gap-2 flex-wrap">
-                <Button as={Link} to="/upload" variant="primary">
+              <div className="d-flex gap-2 flex-wrap quick-actions">
+                <Button
+                  as={Link}
+                  to="/upload"
+                  variant="primary"
+                  className="action-btn"
+                >
                   <i className="bi bi-cloud-upload me-2"></i>Upload File
                 </Button>
-                <Button as={Link} to="/files" variant="outline-primary">
+                <Button
+                  as={Link}
+                  to="/files"
+                  variant="outline-primary"
+                  className="action-btn"
+                >
                   <i className="bi bi-folder me-2"></i>View Files
                 </Button>
-                <Button as={Link} to="/activity-log" variant="outline-info">
+                <Button
+                  as={Link}
+                  to="/activity-log"
+                  variant="outline-info"
+                  className="action-btn"
+                >
                   <i className="bi bi-clock-history me-2"></i>Activity Log
                 </Button>
                 {role === "admin" && (
-                  <Button as={Link} to="/admin-panel" variant="outline-warning">
+                  <Button
+                    as={Link}
+                    to="/admin-panel"
+                    variant="outline-warning"
+                    className="action-btn"
+                  >
                     <i className="bi bi-gear me-2"></i>Admin Panel
                   </Button>
                 )}
@@ -172,7 +206,7 @@ const Dashboard = () => {
       {/* Recent Activity */}
       <Row className="mb-4">
         <Col md={6}>
-          <Card className="shadow-sm border-0">
+          <Card className="shadow-sm border-0 dashboard-card">
             <Card.Body>
               <h5 className="mb-3">Recent Uploads</h5>
               {recentUploads.length > 0 ? (
@@ -191,7 +225,10 @@ const Dashboard = () => {
                   ))}
                 </ul>
               ) : (
-                <p className="text-muted">No files uploaded yet. <Link to="/upload">Upload your first file!</Link></p>
+                <p className="text-muted">
+                  No files uploaded yet.{" "}
+                  <Link to="/upload">Upload your first file!</Link>
+                </p>
               )}
             </Card.Body>
           </Card>
@@ -199,7 +236,7 @@ const Dashboard = () => {
 
         {/* Recent Activities */}
         <Col md={6}>
-          <Card className="shadow-sm border-0">
+          <Card className="shadow-sm border-0 dashboard-card">
             <Card.Body>
               <h5 className="mb-3">Recent Activities</h5>
               {activities.length > 0 ? (
@@ -228,7 +265,7 @@ const Dashboard = () => {
 
         {/* Events */}
         <Col md={6}>
-          <Card className="shadow-sm border-0">
+          <Card className="shadow-sm border-0 dashboard-card">
             <Card.Body>
               <h5 className="mb-3">Upcoming/Recent Events</h5>
               {events.length > 0 ? (
